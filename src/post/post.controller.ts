@@ -7,7 +7,9 @@ import {
   Post,
   Query,
   UsePipes,
+  UseGuards,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Post as PostEntity } from "./post.entity";
 import { PostService } from "./post.service";
@@ -21,7 +23,7 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post("/")
-  // use guard
+  @UseGuards(AuthGuard("jwt"))
   @UsePipes(new JoiValidationPipe({ requestBody: CreatePostInput }))
   @ApiResponse({ status: 201, description: "post created" })
   @ApiResponse({ status: 400, description: "bad request" })
