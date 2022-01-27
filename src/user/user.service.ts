@@ -25,12 +25,11 @@ export class UserService {
     return !!userWithUsername;
   }
 
-  async createUser(email: string, externalUserId: string): Promise<User> {
+  async createUser(email: string): Promise<User> {
     this.logger.log(`create user with email: ${email}`);
 
     const user = new this.userModel({
       email,
-      externalUserId,
     });
     return user.save();
   }

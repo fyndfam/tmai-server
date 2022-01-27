@@ -8,6 +8,8 @@ import {
   Query,
   UsePipes,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -16,6 +18,8 @@ import { PostService } from "./post.service";
 import { JoiValidationPipe } from "../shared/joi-validation.pipe";
 import { CreatePostInput, GetPostsQuery, PostIdParam } from "./post.input";
 import { PostDetail } from "./post.output";
+import { User as UserEntity } from "../user/user.entity";
+import { User } from "../user/user.decorator";
 
 @Controller("/posts")
 @ApiTags("posts")
@@ -27,8 +31,18 @@ export class PostController {
   @UsePipes(new JoiValidationPipe({ requestBody: CreatePostInput }))
   @ApiResponse({ status: 201, description: "post created" })
   @ApiResponse({ status: 400, description: "bad request" })
-  async createPost(@Body() body: CreatePostInput): Promise<PostDetail> {
-    return this.postService.createPost("a", body);
+  async createPost(@User() user: UserEntity, @Body() body: CreatePostInput): Promise<PostDetail> {
+    if (!user.username) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: "username is not set",
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.postService.createPost(user.username, body);
   }
 
   @Get("/:postId")

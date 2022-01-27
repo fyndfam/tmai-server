@@ -7,7 +7,7 @@ export type UserDocument = User & Document;
 export class User {
   id: string;
 
-  @Prop({ required: true })
+  @Prop()
   externalUserId: string;
 
   @Prop({ required: true })

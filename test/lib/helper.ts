@@ -36,17 +36,8 @@ async function createConnection(): Promise<void> {
 export async function givenUser0(): Promise<string> {
   const connection = await getConnection();
   const createdUser = await connection.collection("users").insertOne({
-    email: "test@fyndfam.com",
-    name: "test test",
-    alias: "test",
-    avatar: "https://avatar.com/1",
-    followingUsers: [],
-    followingFam: [],
-    followingFamBiz: [],
-    notificationPreferences: {
-      emailNotification: true,
-      appNotification: true,
-    },
+    email: "test@tmai.co",
+    username: "test",
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -57,15 +48,8 @@ export async function givenUser0(): Promise<string> {
 export async function givenUser(): Promise<string> {
   const connection = await getConnection();
   const createdUser = await connection.collection("users").insertOne({
-    email: "test_user@fyndfam.com",
-    name: "Test Fynd",
-    alias: "testfynd",
-    avatar: "https://avatar.com/2",
-    about: "About myself",
-    country: "SG",
-    followingUsers: [],
-    followingFam: [],
-    followingFamBiz: [],
+    email: "test_user@tmai.co",
+    username: "testfynd",
     createdAt: new Date(),
     updatedAt: new Date(),
   });
