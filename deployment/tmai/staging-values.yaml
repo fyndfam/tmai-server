@@ -25,18 +25,18 @@ environment:
   - name: NO_COLOR
     value: "true"
   - name: JWT_ISSUER
-    value: ""
+    value: "https://tmai-dev.au.auth0.com/"
   - name: JWT_AUDIENCE
-    value: ""
+    value: "https://api-staging.tmai.xyz"
   - name: JWKS_URI
-    value: ""
+    value: "https://tmai-dev.au.auth0.com/.well-known/jwks.json"
 
 secretConfig:
-  # - name: MONGODB_URL
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: MONGODB_URL
+  - name: MONGODB_URL
+    valueFrom:
+      secretKeyRef:
+        name: tmai-secret
+        key: MONGODB_URL
   # - name: AWS_ACCESS_KEY_ID
   #   valueFrom:
   #     secretKeyRef:
