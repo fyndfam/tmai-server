@@ -1,0 +1,104 @@
+# Production values.
+
+replicaCount: 2
+
+image:
+  repository: cckwes/tmai-server
+  pullPolicy: Always
+  tag: ""
+
+imagePullSecrets:
+  - name: regcred
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 3000
+
+livenessProbe:
+  path: /health-check
+readinessProbe:
+  path: /health-check
+
+environment:
+  - name: NODE_ENV
+    value: production
+  - name: NO_COLOR
+    value: "true"
+  - name: JWT_ISSUER
+    value: ""
+  - name: JWT_AUDIENCE
+    value: ""
+  - name: JWKS_URI
+    value: ""
+
+secretConfig:
+  # - name: MONGODB_URL
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: fyndfam-secret
+  #       key: MONGODB_URL
+  # - name: AWS_ACCESS_KEY_ID
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: fyndfam-secret
+  #       key: AWS_ACCESS_KEY_ID
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: fyndfam-secret
+  #       key: AWS_SECRET_ACCESS_KEY
+  # - name: FIREBASE_API_KEY
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: fyndfam-secret
+  #       key: FIREBASE_API_KEY
+  # - name: SENDGRID_API_KEY
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: fyndfam-secret
+  #       key: SENDGRID_API_KEY
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+  annotations: {}
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+  hosts:
+    - host: api.tmai.xyz
+      paths:
+        - path: /
+
+  tls:
+    - secretName: tmai-server-production-api-tls
+      hosts:
+        - api.tmai.xyz
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

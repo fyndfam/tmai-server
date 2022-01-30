@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "tmai.fullname" . }}-test-connection"
+  labels:
+    {{- include "tmai.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "tmai.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

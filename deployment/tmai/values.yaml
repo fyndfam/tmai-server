@@ -1,0 +1,70 @@
+# Default values for tmai.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: cckwes/tmai-server
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 3000
+
+livenessProbe:
+  path: /health-check
+readinessProbe:
+  path: /health-check
+
+environment:
+  - name: NODE_ENV
+    value: development
+  - name: JWT_ISSUER
+    value: ""
+  - name: JWT_AUDIENCE
+    value: ""
+
+secretConfig: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: tmai-server.local
+      paths: ["/"]
+  tls: []
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
