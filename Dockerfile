@@ -7,6 +7,8 @@ WORKDIR /usr/src/app
 
 COPY package.json yarn.lock ./
 
+RUN yarn global add @nestjs/cli
+
 RUN yarn install --prod && yarn cache clean --all
 
 COPY . .
