@@ -37,26 +37,6 @@ secretConfig:
       secretKeyRef:
         name: tmai-secret
         key: MONGODB_URL
-  # - name: AWS_ACCESS_KEY_ID
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: AWS_ACCESS_KEY_ID
-  # - name: AWS_SECRET_ACCESS_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: AWS_SECRET_ACCESS_KEY
-  # - name: FIREBASE_API_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: FIREBASE_API_KEY
-  # - name: SENDGRID_API_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: SENDGRID_API_KEY
 
 serviceAccount:
   create: false
