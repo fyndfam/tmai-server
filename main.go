@@ -14,9 +14,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(middleware.GetJwtMiddleware())
-	// TODO: add post auth middleware to verify claims and create user and set user
-	app.Get("/", restricted)
+	app.Get("/", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(), restricted)
 
 	app.Listen(":8088")
 }
