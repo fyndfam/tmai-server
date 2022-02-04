@@ -1,4 +1,4 @@
-package health_check
+package controller
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func MountRoutes(mongoClient *mongo.Client, app *fiber.App) {
+func MountHealthCheckRoutes(mongoClient *mongo.Client, app *fiber.App) {
 	app.Get("/health-check", createHealthCheckEndpoint(mongoClient))
 }
 

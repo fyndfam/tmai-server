@@ -5,7 +5,8 @@ import (
 	"os"
 	"time"
 
-	userModule "github.com/fyndfam/tmai-server/src/user"
+	"github.com/fyndfam/tmai-server/src/model"
+	"github.com/fyndfam/tmai-server/src/service"
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
@@ -66,14 +67,14 @@ func GetPostJwtMiddleware(mongoClient *mongo.Client) fiber.Handler {
 
 		emailAddress := claims["email"].(string)
 
-		var user *userModule.UserModel
-		user, err := userModule.GetUserByEmail(mongoClient, emailAddress)
+		var user *model.UserModel
+		user, err := service.GetUserByEmail(mongoClient, emailAddress)
 		if err != nil {
 			log.Print(err)
 		}
 
 		if user == nil {
-			createdUser, err := userModule.CreateUser(mongoClient, emailAddress)
+			createdUser, err := service.CreateUser(mongoClient, emailAddress)
 
 			if err != nil {
 				log.Fatal(err)
