@@ -5,9 +5,11 @@ import (
 	"os"
 	"time"
 
+	userModule "github.com/fyndfam/tmai-server/src/user"
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GetJwtMiddleware() fiber.Handler {
@@ -37,7 +39,7 @@ func GetJwtMiddleware() fiber.Handler {
 
 // call this middleware after JWT middleware, this middleware will check for claims
 // create user by email if it doesn't exists, or get the user from database if user exists
-func GetPostJwtMiddleware() fiber.Handler {
+func GetPostJwtMiddleware(mongoClient *mongo.Client) fiber.Handler {
 	var issuer, audience string
 
 	if os.Getenv("APP_ENV") == "production" {
@@ -49,8 +51,8 @@ func GetPostJwtMiddleware() fiber.Handler {
 	}
 
 	return func(context *fiber.Ctx) error {
-		user := context.Locals("user").(*jwt.Token)
-		claims := user.Claims.(jwt.MapClaims)
+		token := context.Locals("user").(*jwt.Token)
+		claims := token.Claims.(jwt.MapClaims)
 
 		if ok := claims.VerifyAudience(issuer, true); !ok {
 			context.Status(401).Send([]byte("Invalid token"))
@@ -62,8 +64,26 @@ func GetPostJwtMiddleware() fiber.Handler {
 			return nil
 		}
 
-		// TODO: get or create user by email
+		emailAddress := claims["email"].(string)
 
+		var user *userModule.UserModel
+		user, err := userModule.GetUserByEmail(mongoClient, emailAddress)
+		if err != nil {
+			log.Print(err)
+		}
+
+		if user == nil {
+			createdUser, err := userModule.CreateUser(mongoClient, emailAddress)
+
+			if err != nil {
+				log.Fatal(err)
+				return err
+			}
+
+			user = createdUser
+		}
+
+		context.Locals("user", *user)
 		context.Next()
 		return nil
 	}

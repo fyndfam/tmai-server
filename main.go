@@ -1,27 +1,34 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
+	"os"
 
-	"github.com/fyndfam/tmai-server/src/middleware"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/fyndfam/tmai-server/src/server"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	fmt.Println("hello")
+	mongoClientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
+	mongoClient, err := mongo.Connect(context.TODO(), mongoClientOptions)
 
-	app := fiber.New()
+	if err != nil {
+		log.Fatal("Failed to connect to mongodb, panic...")
+		panic(err)
+	}
 
-	app.Get("/", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(), restricted)
+	defer func() {
+		err := mongoClient.Disconnect(context.TODO())
+
+		if err != nil {
+			log.Fatal("Failed to disconnect from mongodb, panic...")
+			panic(err)
+		}
+	}()
+
+	app := server.NewApp(mongoClient)
 
 	app.Listen(":8088")
-}
-
-func restricted(context *fiber.Ctx) error {
-	user := context.Locals("user").(*jwt.Token)
-	log.Printf("claims are %+v", user)
-
-	return context.JSON(map[string]string{"status": "ok"})
 }
