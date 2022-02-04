@@ -11,7 +11,7 @@ type PostModel struct {
 	Content       string             `json:"content" bson:"content"`
 	Tags          []string           `json:"tags,omitempty" bson:"tags,omitempty"`
 	View          int64              `json:"view" bson:"view"`
-	CreatedBy     primitive.ObjectID `json:"createdBy" bson:"createdBy"`
+	CreatedBy     string             `json:"createdBy" bson:"createdBy"`
 	ContentEdited bool               `json:"contentEdited" bson:"contentEdited"`
 	CreatedAt     time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt     time.Time          `json:"updatedAt" bson:"updatedAt"`
