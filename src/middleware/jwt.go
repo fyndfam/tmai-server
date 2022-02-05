@@ -5,12 +5,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/fyndfam/tmai-server/src/env"
 	"github.com/fyndfam/tmai-server/src/model"
 	"github.com/fyndfam/tmai-server/src/service"
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GetJwtMiddleware() fiber.Handler {
@@ -40,7 +40,7 @@ func GetJwtMiddleware() fiber.Handler {
 
 // call this middleware after JWT middleware, this middleware will check for claims
 // create user by email if it doesn't exists, or get the user from database if user exists
-func GetPostJwtMiddleware(mongoClient *mongo.Client) fiber.Handler {
+func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 	var issuer, audience string
 
 	if os.Getenv("APP_ENV") == "production" {
@@ -68,13 +68,13 @@ func GetPostJwtMiddleware(mongoClient *mongo.Client) fiber.Handler {
 		emailAddress := claims["email"].(string)
 
 		var user *model.UserModel
-		user, err := service.GetUserByEmail(mongoClient, emailAddress)
+		user, err := service.GetUserByEmail(env, emailAddress)
 		if err != nil {
 			log.Print(err)
 		}
 
 		if user == nil {
-			createdUser, err := service.CreateUser(mongoClient, emailAddress)
+			createdUser, err := service.CreateUser(env, emailAddress)
 
 			if err != nil {
 				log.Fatal(err)

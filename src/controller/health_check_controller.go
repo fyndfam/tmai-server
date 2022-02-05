@@ -3,17 +3,17 @@ package controller
 import (
 	"context"
 
+	"github.com/fyndfam/tmai-server/src/env"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func MountHealthCheckRoutes(mongoClient *mongo.Client, app *fiber.App) {
-	app.Get("/health-check", createHealthCheckEndpoint(mongoClient))
+func MountHealthCheckRoutes(env *env.Env, app *fiber.App) {
+	app.Get("/health-check", createHealthCheckEndpoint(env))
 }
 
-func createHealthCheckEndpoint(mongoClient *mongo.Client) fiber.Handler {
+func createHealthCheckEndpoint(env *env.Env) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		err := mongoClient.Ping(context.TODO(), nil)
+		err := env.MongoClient.Ping(context.TODO(), nil)
 
 		if err == nil {
 			ctx.Status(200).SendString("OK")

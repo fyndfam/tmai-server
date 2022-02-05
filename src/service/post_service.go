@@ -5,14 +5,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/fyndfam/tmai-server/src/env"
 	"github.com/fyndfam/tmai-server/src/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetPostByID(mongoClient *mongo.Client, postID string) (*model.PostModel, error) {
+func GetPostByID(env *env.Env, postID string) (*model.PostModel, error) {
 	objectId, err := primitive.ObjectIDFromHex(postID)
 	if err != nil {
 		log.Println("Invalid post ID")
@@ -23,16 +23,12 @@ func GetPostByID(mongoClient *mongo.Client, postID string) (*model.PostModel, er
 
 	var post model.PostModel
 
-	collection := mongoClient.Database("tmai").Collection("posts")
-
-	collection.FindOne(context.TODO(), filter).Decode(&post)
+	env.PostCollection.FindOne(context.TODO(), filter).Decode(&post)
 
 	return &post, nil
 }
 
-func GetLatestPosts(mongoClient *mongo.Client, limit int64, offset int64) ([]*model.PostModel, error) {
-	collection := mongoClient.Database("tmai").Collection("posts")
-
+func GetLatestPosts(env *env.Env, limit int64, offset int64) ([]*model.PostModel, error) {
 	docs := make([]*model.PostModel, limit)
 
 	options := options.Find()
@@ -40,7 +36,7 @@ func GetLatestPosts(mongoClient *mongo.Client, limit int64, offset int64) ([]*mo
 	options.SetSkip(offset)
 	options.SetLimit(limit)
 
-	cursor, err := collection.Find(context.TODO(), bson.M{}, options)
+	cursor, err := env.PostCollection.Find(context.TODO(), bson.M{}, options)
 	if err != nil {
 		log.Println("error finding latest post", err)
 		return nil, err
@@ -54,9 +50,7 @@ func GetLatestPosts(mongoClient *mongo.Client, limit int64, offset int64) ([]*mo
 	return docs, nil
 }
 
-func CreatePost(mongoClient *mongo.Client, username string, content string) (*model.PostModel, error) {
-	collection := mongoClient.Database("tmai").Collection("posts")
-
+func CreatePost(env *env.Env, username string, content string) (*model.PostModel, error) {
 	var tags []string
 
 	post := model.PostModel{
@@ -70,7 +64,7 @@ func CreatePost(mongoClient *mongo.Client, username string, content string) (*mo
 		UpdatedAt:     time.Now().UTC(),
 	}
 
-	_, err := collection.InsertOne(context.TODO(), post)
+	_, err := env.PostCollection.InsertOne(context.TODO(), post)
 	if err != nil {
 		log.Println("error inserting post", err)
 		return nil, err
@@ -79,19 +73,17 @@ func CreatePost(mongoClient *mongo.Client, username string, content string) (*mo
 	return &post, nil
 }
 
-func IncrementPostView(mongoClient *mongo.Client, postID string) error {
+func IncrementPostView(env *env.Env, postID string) error {
 	objectId, err := primitive.ObjectIDFromHex(postID)
 	if err != nil {
 		log.Println("Invalid post ID")
 		return err
 	}
 
-	collection := mongoClient.Database("tmai").Collection("posts")
-
 	filter := bson.M{"_id": objectId}
 	update := bson.M{"$inc": bson.M{"view": 1}}
 
-	if _, err := collection.UpdateOne(context.TODO(), filter, update); err != nil {
+	if _, err := env.PostCollection.UpdateOne(context.TODO(), filter, update); err != nil {
 		log.Println("Error when incrementing post view count", err)
 		return err
 	}

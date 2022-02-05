@@ -4,22 +4,22 @@ import (
 	"log"
 	"strings"
 
+	"github.com/fyndfam/tmai-server/src/env"
 	"github.com/fyndfam/tmai-server/src/middleware"
 	"github.com/fyndfam/tmai-server/src/model"
 	"github.com/fyndfam/tmai-server/src/service"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UpdateUsernameInput struct {
 	Username string `json:"username"`
 }
 
-func MountUserRoutes(mongoClient *mongo.Client, app *fiber.App) {
-	app.Post("/users/username", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(mongoClient), createUpdateUsernameEndpoint(mongoClient))
+func MountUserRoutes(env *env.Env, app *fiber.App) {
+	app.Post("/users/username", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(env), createUpdateUsernameEndpoint(env))
 }
 
-func createUpdateUsernameEndpoint(mongoClient *mongo.Client) fiber.Handler {
+func createUpdateUsernameEndpoint(env *env.Env) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		user, ok := ctx.Locals("user").(model.UserModel)
 		if !ok {
@@ -43,7 +43,7 @@ func createUpdateUsernameEndpoint(mongoClient *mongo.Client) fiber.Handler {
 		}
 
 		log.Println("user email address is", user.Email)
-		if err := service.UpdateUsername(mongoClient, username, user.Email); err != nil {
+		if err := service.UpdateUsername(env, username, user.Email); err != nil {
 			ctx.Status(502)
 			return nil
 		}

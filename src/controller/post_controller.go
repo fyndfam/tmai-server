@@ -5,24 +5,24 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fyndfam/tmai-server/src/env"
 	"github.com/fyndfam/tmai-server/src/middleware"
 	"github.com/fyndfam/tmai-server/src/model"
 	"github.com/fyndfam/tmai-server/src/service"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type InsertPostInput struct {
 	Content string `json:"content"`
 }
 
-func MountPostRoutes(mongoClient *mongo.Client, app *fiber.App) {
-	app.Post("/posts", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(mongoClient), createInsertPostEndpoint(mongoClient))
-	app.Get("/posts", createGetLatestPostsEndpoint(mongoClient))
-	app.Get("/posts/:postId", createGetPostByIdEndpoint(mongoClient))
+func MountPostRoutes(env *env.Env, app *fiber.App) {
+	app.Post("/posts", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(env), createInsertPostEndpoint(env))
+	app.Get("/posts", createGetLatestPostsEndpoint(env))
+	app.Get("/posts/:postId", createGetPostByIdEndpoint(env))
 }
 
-func createInsertPostEndpoint(mongoClient *mongo.Client) fiber.Handler {
+func createInsertPostEndpoint(env *env.Env) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		user, ok := ctx.Locals("user").(model.UserModel)
 		if !ok {
@@ -49,7 +49,7 @@ func createInsertPostEndpoint(mongoClient *mongo.Client) fiber.Handler {
 			return nil
 		}
 
-		createdPost, err := service.CreatePost(mongoClient, *user.Username, content)
+		createdPost, err := service.CreatePost(env, *user.Username, content)
 		if err != nil {
 			ctx.Status(502)
 			return nil
@@ -60,7 +60,7 @@ func createInsertPostEndpoint(mongoClient *mongo.Client) fiber.Handler {
 	}
 }
 
-func createGetLatestPostsEndpoint(mongoClient *mongo.Client) fiber.Handler {
+func createGetLatestPostsEndpoint(env *env.Env) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		offset, convErr := strconv.Atoi(ctx.Query("offset", "0"))
 		if convErr != nil {
@@ -68,7 +68,7 @@ func createGetLatestPostsEndpoint(mongoClient *mongo.Client) fiber.Handler {
 			return nil
 		}
 
-		latestPosts, err := service.GetLatestPosts(mongoClient, 10, int64(offset))
+		latestPosts, err := service.GetLatestPosts(env, 10, int64(offset))
 		if err != nil {
 			ctx.Status(502)
 			return nil
@@ -79,17 +79,17 @@ func createGetLatestPostsEndpoint(mongoClient *mongo.Client) fiber.Handler {
 	}
 }
 
-func createGetPostByIdEndpoint(mongoClient *mongo.Client) fiber.Handler {
+func createGetPostByIdEndpoint(env *env.Env) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		postID := ctx.Params("postId")
 
-		post, _ := service.GetPostByID(mongoClient, postID)
+		post, _ := service.GetPostByID(env, postID)
 		if post == nil {
 			ctx.Status(404)
 			return nil
 		}
 
-		service.IncrementPostView(mongoClient, postID)
+		service.IncrementPostView(env, postID)
 
 		ctx.Status(200).JSON(post)
 		return nil
