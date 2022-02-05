@@ -19,7 +19,7 @@ func GetPostByID(mongoClient *mongo.Client, postID string) (*model.PostModel, er
 		return nil, err
 	}
 
-	filter := bson.D{{"_id", objectId}}
+	filter := bson.M{"_id": objectId}
 
 	var post model.PostModel
 
@@ -65,8 +65,8 @@ func CreatePost(mongoClient *mongo.Client, username string, content string) (*mo
 		View:          0,
 		CreatedBy:     username,
 		ContentEdited: false,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
 	}
 
 	_, err := collection.InsertOne(context.TODO(), post)

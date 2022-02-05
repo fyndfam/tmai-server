@@ -15,8 +15,8 @@ func CreateUser(mongoClient *mongo.Client, email string) (*model.UserModel, erro
 	user := model.UserModel{
 		ID:        primitive.NewObjectID(),
 		Email:     email,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 	}
 
 	collection := mongoClient.Database("tmai").Collection("users")
@@ -35,7 +35,7 @@ func GetUserByEmail(mongoClient *mongo.Client, email string) (*model.UserModel, 
 
 	var user model.UserModel
 
-	err := collection.FindOne(context.TODO(), bson.D{{"email", email}}).Decode(&user)
+	err := collection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
 	if err != nil {
 		log.Print(err)
 
@@ -48,8 +48,8 @@ func GetUserByEmail(mongoClient *mongo.Client, email string) (*model.UserModel, 
 func UpdateUsername(mongoClient *mongo.Client, username string, emailAddress string) error {
 	collection := mongoClient.Database("tmai").Collection("users")
 
-	filter := bson.D{{"email", emailAddress}}
-	update := bson.D{{"$set", bson.D{{"username", username}}}}
+	filter := bson.M{"email": emailAddress}
+	update := bson.M{"$set": bson.M{"username": username, "updatedAt": time.Now().UTC()}}
 
 	var user model.UserModel
 

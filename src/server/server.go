@@ -12,6 +12,7 @@ func NewApp(mongoClient *mongo.Client) *fiber.App {
 
 	controller.MountHealthCheckRoutes(mongoClient, app)
 	controller.MountUserRoutes(mongoClient, app)
+	controller.MountPostRoutes(mongoClient, app)
 
 	app.Get("/", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(mongoClient), restricted)
 
