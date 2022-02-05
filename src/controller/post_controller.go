@@ -30,7 +30,7 @@ func createInsertPostEndpoint(mongoClient *mongo.Client) fiber.Handler {
 			return nil
 		}
 		if user.Username == nil {
-			ctx.Status(403)
+			ctx.Status(403).JSON(map[string]string{"message": "Please set your username before trying to create a post"})
 			return nil
 		}
 
@@ -45,7 +45,7 @@ func createInsertPostEndpoint(mongoClient *mongo.Client) fiber.Handler {
 		content := strings.TrimSpace(input.Content)
 		if len(content) == 0 {
 			log.Println("Can not create post with empty content")
-			ctx.Status(400)
+			ctx.Status(400).JSON(map[string]string{"message": "Post content must not be empty"})
 			return nil
 		}
 
@@ -68,7 +68,7 @@ func createGetLatestPostsEndpoint(mongoClient *mongo.Client) fiber.Handler {
 			return nil
 		}
 
-		latestPosts, err := service.GetLatestPosts(mongoClient, int64(offset), 0)
+		latestPosts, err := service.GetLatestPosts(mongoClient, 10, int64(offset))
 		if err != nil {
 			ctx.Status(502)
 			return nil
@@ -88,6 +88,8 @@ func createGetPostByIdEndpoint(mongoClient *mongo.Client) fiber.Handler {
 			ctx.Status(404)
 			return nil
 		}
+
+		service.IncrementPostView(mongoClient, postID)
 
 		ctx.Status(200).JSON(post)
 		return nil

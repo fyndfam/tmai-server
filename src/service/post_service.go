@@ -45,6 +45,7 @@ func GetLatestPosts(mongoClient *mongo.Client, limit int64, offset int64) ([]*mo
 		log.Println("error finding latest post", err)
 		return nil, err
 	}
+
 	if err = cursor.All(context.TODO(), &docs); err != nil {
 		log.Println("error reading all docs", err)
 		return nil, err
@@ -76,4 +77,24 @@ func CreatePost(mongoClient *mongo.Client, username string, content string) (*mo
 	}
 
 	return &post, nil
+}
+
+func IncrementPostView(mongoClient *mongo.Client, postID string) error {
+	objectId, err := primitive.ObjectIDFromHex(postID)
+	if err != nil {
+		log.Println("Invalid post ID")
+		return err
+	}
+
+	collection := mongoClient.Database("tmai").Collection("posts")
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{"$inc": bson.M{"view": 1}}
+
+	if _, err := collection.UpdateOne(context.TODO(), filter, update); err != nil {
+		log.Println("Error when incrementing post view count", err)
+		return err
+	}
+
+	return nil
 }
