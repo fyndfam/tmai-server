@@ -10,5 +10,5 @@ func main() {
 
 	app := server.NewApp(env)
 
-	app.Listen(":8088")
+	app.Listen(":3000")
 }

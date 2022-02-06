@@ -1,33 +1,28 @@
 ###############
 # stage 1
 ###############
-FROM node:16-alpine3.14 AS BUILD_IMG
+FROM golang:1.17.6-alpine3.15 AS BUILD_IMG
 
 WORKDIR /usr/src/app
-
-COPY package.json yarn.lock ./
-
-RUN yarn global add @nestjs/cli
-
-RUN yarn install --prod && yarn cache clean --all
-
 COPY . .
-RUN yarn build
+
+RUN go mod download
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o tmai-server .
 
 ###############
 # stage 2
 ###############
-FROM node:16-alpine3.14
+FROM alpine:3.15
 
-RUN mkdir /home/node/app && chown -R node:node /home/node/app
+RUN mkdir /home/go/app && chown -R go:go /home/go/app
 
-WORKDIR /home/node/app
+WORKDIR /home/go/app
 
-COPY --chown=node:node --from=BUILD_IMG /usr/src/app/dist ./dist
-COPY --chown=node:node --from=BUILD_IMG /usr/src/app/node_modules ./node_modules
+COPY --from=BUILD_IMG /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --chown=go:go --from=BUILD_IMG /usr/src/app/tmai-server .
 
-USER node
+USER go
 
 EXPOSE 3000
 
-CMD ["node", "./dist/src/main.js"]
+ENTRYPOINT [/home/go/app/tmai-server]
