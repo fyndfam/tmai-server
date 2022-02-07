@@ -10,11 +10,17 @@ require (
 )
 
 require (
+	github.com/PaesslerAG/gval v1.0.0 // indirect
+	github.com/PaesslerAG/jsonpath v0.1.1 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/franela/goblin v0.0.0-20211003143422-0a4f594942bf // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/klauspost/compress v1.14.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/steinfletcher/apitest v1.5.11 // indirect
+	github.com/steinfletcher/apitest-jsonpath v1.7.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.33.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -56,7 +57,7 @@ func UpdateUsername(env *env.Env, username string, emailAddress string) error {
 	if user.Username != nil {
 		log.Println("username already exists, not updating")
 
-		return nil
+		return errors.New("USERNAME_EXISTS")
 	}
 
 	if _, err := env.UserCollection.UpdateOne(context.TODO(), filter, update); err != nil {

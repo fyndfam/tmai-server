@@ -42,8 +42,12 @@ func createUpdateUsernameEndpoint(env *env.Env) fiber.Handler {
 			return nil
 		}
 
-		log.Println("user email address is", user.Email)
 		if err := service.UpdateUsername(env, username, user.Email); err != nil {
+			if err.Error() == "USERNAME_EXISTS" {
+				ctx.Status(403).JSON(map[string]string{"error": "username already exists"})
+				return nil
+			}
+
 			ctx.Status(502)
 			return nil
 		}

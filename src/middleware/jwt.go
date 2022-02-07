@@ -27,8 +27,6 @@ func GetJwtMiddleware() fiber.Handler {
 			KeyRefreshRateLimit: &refreshRateLimit,
 		}
 	} else {
-		log.Println("using a dev setup for jwt config")
-
 		config = jwtware.Config{
 			SigningMethod: "HS256",
 			SigningKey:    []byte("BSDGR3VVE3EHMTVEYRMTKSUB"),
