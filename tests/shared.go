@@ -14,8 +14,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var environment *env.Env
-
 const Bearer string = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNjQzODg5Njc4LCJleHAiOjQxMDI0NDQ4MDAsImF1ZCI6InRtYWlzZXJ2ZXIiLCJpc3MiOiJ0bWFpc2VydmVyIiwiZW1haWwiOiJ0ZXN0QHRtYWkuY28ifQ.P0H878UgorhlE3zT9l9HaAiX4fg0Esd35SZNfKjyJRs"
 
 const email string = "test@tmai.co"
@@ -45,11 +43,7 @@ func FiberToHandler(app *fiber.App) http.HandlerFunc {
 	}
 }
 
-func GetEnvironment() *env.Env {
-	return environment
-}
-
-func ClearDB() {
+func ClearDB(environment *env.Env) {
 	if environment == nil {
 		log.Fatalln("environment is not setup")
 	}
@@ -58,20 +52,17 @@ func ClearDB() {
 	environment.UserCollection.DeleteMany(context.TODO(), bson.M{})
 }
 
-func SetupTests() {
-	if environment == nil {
-		environment = env.InitializeEnvironment()
-	}
+func SetupTests() *env.Env {
+	return env.InitializeEnvironment()
 }
 
-func TearDownTests() {
+func TearDownTests(environment *env.Env) {
 	if environment != nil {
 		env.ShutdownEnvironment(environment)
-		environment = nil
 	}
 }
 
-func GivenUser() {
+func GivenUser(environment *env.Env) {
 	if environment == nil {
 		log.Fatalln("environment is not setup")
 	}
@@ -88,7 +79,7 @@ func GivenUser() {
 	}
 }
 
-func GivenUserWithUsername() {
+func GivenUserWithUsername(environment *env.Env) {
 	if environment == nil {
 		log.Fatalln("environment is not setup")
 	}

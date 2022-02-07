@@ -1,59 +1,78 @@
 package tests
 
 import (
-	"net/http"
+	"encoding/json"
+	"io/ioutil"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/franela/goblin"
 	"github.com/fyndfam/tmai-server/src/server"
-	"github.com/steinfletcher/apitest"
-	jsonpath "github.com/steinfletcher/apitest-jsonpath"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetUsernameAPI(t *testing.T) {
 	g := goblin.Goblin(t)
 
 	g.Describe("POST /users/username", func() {
-		g.Before(func() {
-			SetupTests()
-		})
+		environment := SetupTests()
+		app := server.NewApp(environment)
 
 		g.After(func() {
-			TearDownTests()
+			TearDownTests(environment)
 		})
 
 		g.BeforeEach(func() {
-			ClearDB()
+			ClearDB(environment)
 		})
 
 		g.It("should not be able to set username again", func() {
-			GivenUserWithUsername()
+			GivenUserWithUsername(environment)
 
-			apitest.New().
-				HandlerFunc(FiberToHandler(server.NewApp(GetEnvironment()))).
-				Post("/users/username").
-				Header("Authorization", Bearer).
-				Header("Content-type", "application/json").
-				Body(`{"username": "realname"}`).
-				Expect(t).
-				Assert(jsonpath.Equal(`$.error`, "username already exists")).
-				Status(http.StatusForbidden).
-				End()
+			req := httptest.NewRequest("POST", "/users/username", strings.NewReader(`{"username": "realname"}`))
+			req.Header.Set("Content-type", "application/json")
+			req.Header.Set("Authorization", Bearer)
+
+			res, err := app.Test(req)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, 403, res.StatusCode)
+
+			body, _ := ioutil.ReadAll(res.Body)
+			var result map[string]interface{}
+			parseErr := json.Unmarshal(body, &result)
+			if parseErr != nil {
+				t.Error(parseErr)
+			}
+
+			assert.Equal(t, "username already exists", result["error"])
 		})
 
 		g.It("should be able to set username for the first time", func() {
-			GivenUser()
+			GivenUser(environment)
 
-			apitest.New().
-				HandlerFunc(FiberToHandler(server.NewApp(GetEnvironment()))).
-				Post("/users/username").
-				Header("Authorization", Bearer).
-				Header("Content-type", "application/json").
-				Body(`{"username": "realname"}`).
-				Expect(t).
-				Assert(jsonpath.Equal(`$.status`, "success")).
-				Status(http.StatusOK).
-				End()
+			req := httptest.NewRequest("POST", "/users/username", strings.NewReader(`{"username": "realname"}`))
+			req.Header.Set("Content-type", "application/json")
+			req.Header.Set("Authorization", Bearer)
+
+			res, err := app.Test(req)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, 200, res.StatusCode)
+
+			body, _ := ioutil.ReadAll(res.Body)
+			var result map[string]interface{}
+			parseErr := json.Unmarshal(body, &result)
+			if parseErr != nil {
+				t.Error(parseErr)
+			}
+
+			assert.Equal(t, "success", result["status"])
 		})
 	})
 }
