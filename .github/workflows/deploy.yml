@@ -45,3 +45,14 @@ jobs:
           tags: |
             cckwes/tmai-server:latest
             cckwes/tmai-server:${{fromJson(steps.set_var.outputs.versionJson).version}}
+
+      - name: Deploy helm chart to staging
+        uses: deliverybot/helm@v1
+        with:
+          release: tmai-server
+          namespace: staging
+          chart: ./deployment/tmai
+          value-files: ./deployment/tmai/staging-values.yaml
+          helm: helm3
+        env:
+          KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
