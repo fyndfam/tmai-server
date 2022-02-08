@@ -10,18 +10,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
         with:
-          node-version: ${{ matrix.node-version }}
-      - run: yarn install --frozen-lockfile
-      - run: yarn build
-      - run: yarn lint
-      - name: Run test
-        run: yarn test:local
+          go-version: ^1.17
+
+      - name: Checkout code
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          go get -v -t -d ./...
+
+      - name: Start the environment necessary to run test
+        run: docker-compose -f docker-compose.yml up -d mongo && sleep 10
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Shutting down test environment
+        run: docker-compose -f docker-compose.yml kill && docker-compose -f docker-compose.yml rm -f
