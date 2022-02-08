@@ -14,15 +14,16 @@ RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o tmai-server .
 ###############
 FROM alpine:3.15
 
-RUN mkdir -pv /home/go/app && chown -R go:go /home/go/app
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN mkdir -pv /home/app/app && chown -R appuser:appgroup /home/app/app
 
-WORKDIR /home/go/app
+WORKDIR /home/app/app
 
 COPY --from=BUILD_IMG /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --chown=go:go --from=BUILD_IMG /usr/src/app/tmai-server .
+COPY --chown=appuser:appgroup --from=BUILD_IMG /usr/src/app/tmai-server .
 
-USER go
+USER appuser
 
 EXPOSE 3000
 
-ENTRYPOINT [/home/go/app/tmai-server]
+ENTRYPOINT [/home/app/app/tmai-server]
