@@ -1,6 +1,7 @@
 ## tmai-server
 
 ![Build and Test](https://github.com/fyndfam/tmai-server/actions/workflows/build_and_test.yml/badge.svg)
+[![deploy](https://github.com/fyndfam/tmai-server/actions/workflows/dpeloy.yml/badge.svg)](https://github.com/fyndfam/tmai-server/actions/workflows/dpeloy.yml)
 
 tmai-server is the backend server for tmai written in Go
 
