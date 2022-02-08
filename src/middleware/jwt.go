@@ -15,8 +15,9 @@ import (
 
 func GetJwtMiddleware() fiber.Handler {
 	var config jwtware.Config
+	appEnv := os.Getenv("APP_ENV")
 
-	if os.Getenv("APP_ENV") == "production" {
+	if appEnv == "production" || appEnv == "staging" {
 		refreshRateLimit := time.Duration(5) * time.Minute
 		refreshInterval := time.Minute
 
