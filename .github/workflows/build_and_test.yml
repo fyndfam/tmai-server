@@ -27,7 +27,7 @@ jobs:
         run: docker-compose -f docker-compose.yml up -d mongo && sleep 10
 
       - name: Test
-        run: go test -v ./...
+        run: MONGODB_URL=mongodb://tmai:password@localhost:27017/tmai go test -v ./...
 
       - name: Shutting down test environment
         run: docker-compose -f docker-compose.yml kill && docker-compose -f docker-compose.yml rm -f
