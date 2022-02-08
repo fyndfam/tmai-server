@@ -98,3 +98,29 @@ func GivenUserWithUsername(environment *env.Env) {
 		log.Fatalln("Failed to insert test user data")
 	}
 }
+
+func GivenPost(environment *env.Env, postContent string) string {
+	if environment == nil {
+		log.Fatalln("environment is not setup")
+	}
+
+	postID := primitive.NewObjectID()
+	var tags []string
+
+	post := model.PostModel{
+		ID:            postID,
+		Content:       postContent,
+		Tags:          tags,
+		CreatedBy:     "test",
+		View:          0,
+		ContentEdited: false,
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
+	}
+
+	if _, err := environment.PostCollection.InsertOne(context.TODO(), post); err != nil {
+		log.Fatalln("Failed to insert test post data")
+	}
+
+	return postID.Hex()
+}
