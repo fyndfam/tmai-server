@@ -47,7 +47,7 @@ jobs:
             cckwes/tmai-server:${{fromJson(steps.set_var.outputs.versionJson).version}}
 
       - name: Deploy helm chart to staging
-        uses: deliverybot/helm@v1
+        uses: glopezep/helm@v1.7.1
         with:
           release: tmai-server
           namespace: staging
