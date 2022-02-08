@@ -26,4 +26,4 @@ USER appuser
 
 EXPOSE 3000
 
-ENTRYPOINT [/home/appuser/app/tmai-server]
+ENTRYPOINT ["/home/appuser/app/tmai-server"]
