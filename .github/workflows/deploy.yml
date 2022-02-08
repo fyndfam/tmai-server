@@ -11,10 +11,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Get package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
+      
+      - id: set_var
+        run: |
+          content=`cat ./version.json`
+          # the following lines are only required for multi line json
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          # end of optional handling for multi line json
+          echo "::set-output name=versionJson::$content"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -38,4 +44,4 @@ jobs:
           push: true
           tags: |
             cckwes/tmai-server:latest
-            cckwes/tmai-server:${{ steps.package-version.outputs.current-version }}
+            cckwes/tmai-server:${{fromJson(steps.set_var.outputs.versionJson).version}}

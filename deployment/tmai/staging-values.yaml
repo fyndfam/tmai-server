@@ -20,10 +20,8 @@ readinessProbe:
   path: /health-check
 
 environment:
-  - name: NODE_ENV
+  - name: APP_ENV
     value: staging
-  - name: NO_COLOR
-    value: "true"
   - name: JWT_ISSUER
     value: "https://tmai-dev.au.auth0.com/"
   - name: JWT_AUDIENCE
