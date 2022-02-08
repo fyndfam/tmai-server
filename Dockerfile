@@ -14,7 +14,7 @@ RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o tmai-server .
 ###############
 FROM alpine:3.15
 
-RUN mkdir /home/go/app && chown -R go:go /home/go/app
+RUN mkdir -pv /home/go/app && chown -R go:go /home/go/app
 
 WORKDIR /home/go/app
 
