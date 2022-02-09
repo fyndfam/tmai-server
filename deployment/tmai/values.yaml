@@ -27,6 +27,8 @@ environment:
     value: ""
   - name: JWT_AUDIENCE
     value: ""
+  - name: DATABASE_NAME
+    value: "tmai"
 
 secretConfig: {}
 

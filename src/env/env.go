@@ -15,6 +15,15 @@ type Env struct {
 	PostCollection *mongo.Collection
 }
 
+func getDatabaseName() string {
+	databaseName := os.Getenv("DATABASE_NAME")
+
+	if len(databaseName) == 0 {
+		return "tmai"
+	}
+	return databaseName
+}
+
 func InitializeEnvironment() *Env {
 	mongoClientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
 	mongoClient, err := mongo.Connect(context.TODO(), mongoClientOptions)
@@ -24,7 +33,7 @@ func InitializeEnvironment() *Env {
 		panic(err)
 	}
 
-	databaseName := "tmai"
+	databaseName := getDatabaseName()
 
 	env := Env{
 		MongoClient:    mongoClient,
