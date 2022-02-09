@@ -28,6 +28,8 @@ environment:
     value: "https://api-staging.tmai.xyz"
   - name: JWKS_URI
     value: "https://tmai-dev.au.auth0.com/.well-known/jwks.json"
+  - name: DATABASE_NAME
+    value: "tmai-staging"
 
 secretConfig:
   - name: MONGODB_URL
