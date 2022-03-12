@@ -16,7 +16,21 @@ type UpdateUsernameInput struct {
 }
 
 func MountUserRoutes(env *env.Env, app *fiber.App) {
+	app.Get("/users", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(env), createGetUserEndpoint(env))
 	app.Post("/users/username", middleware.GetJwtMiddleware(), middleware.GetPostJwtMiddleware(env), createUpdateUsernameEndpoint(env))
+}
+
+func createGetUserEndpoint(env *env.Env) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		user, ok := ctx.Locals("user").(model.UserModel)
+		if !ok {
+			ctx.Status(401)
+			return nil
+		}
+
+		ctx.Status(200).JSON(user)
+		return nil
+	}
 }
 
 func createUpdateUsernameEndpoint(env *env.Env) fiber.Handler {
