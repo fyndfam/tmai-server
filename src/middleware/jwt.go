@@ -55,12 +55,12 @@ func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 		claims := token.Claims.(jwt.MapClaims)
 
 		if ok := claims.VerifyAudience(issuer, true); !ok {
-			context.Status(401).Send([]byte("Invalid token"))
+			context.Status(401).Send([]byte("Invalid token aud"))
 			return nil
 		}
 
 		if ok := claims.VerifyIssuer(audience, true); !ok {
-			context.Status(401).Send([]byte("Invalid token"))
+			context.Status(401).Send([]byte("Invalid token iss"))
 			return nil
 		}
 
