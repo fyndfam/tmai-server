@@ -29,6 +29,8 @@ environment:
     value: ""
   - name: DATABASE_NAME
     value: "tmai"
+  - name: AUTH0_USER_INFO_URL
+    value: ""
 
 secretConfig: {}
 

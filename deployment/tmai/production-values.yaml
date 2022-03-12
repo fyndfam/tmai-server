@@ -30,6 +30,8 @@ environment:
     value: ""
   - name: JWKS_URI
     value: ""
+  - name: AUTH0_USER_INFO_URL
+    value: ""
 
 secretConfig:
   # - name: MONGODB_URL

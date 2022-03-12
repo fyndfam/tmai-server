@@ -30,6 +30,8 @@ environment:
     value: "https://tmai-dev.au.auth0.com/.well-known/jwks.json"
   - name: DATABASE_NAME
     value: "tmai-staging"
+  - name: AUTH0_USER_INFO_URL
+    value: "https://tmai-dev.au.auth0.com/userinfo"
 
 secretConfig:
   - name: MONGODB_URL
