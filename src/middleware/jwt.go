@@ -1,7 +1,10 @@
 package middleware
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -65,7 +68,19 @@ func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 			return nil
 		}
 
-		emailAddress := claims["email"].(string)
+		var emailAddress string
+		if claims["email"] == nil {
+			email, err := getUserEmailFromAuth0(token.Raw)
+			if err != nil {
+				log.Print(err)
+				context.Status(502).Send([]byte("Internal server error"))
+				return nil
+			}
+
+			emailAddress = email
+		} else {
+			emailAddress = claims["email"].(string)
+		}
 
 		var user *model.UserModel
 		user, err := service.GetUserByEmail(env, emailAddress)
@@ -88,4 +103,39 @@ func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 		context.Next()
 		return nil
 	}
+}
+
+type Auth0UserInfo struct {
+	Email string `json:"email"`
+}
+
+func getUserEmailFromAuth0(token string) (string, error) {
+	userInfoURL := os.Getenv("AUTH0_USER_INFO_URL")
+
+	req, err := http.NewRequest("GET", userInfoURL, nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Add("Content-type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Error on response.\n[ERROR] -", err)
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("Error while reading the response bytes:", err)
+		return "", err
+	}
+
+	var auth0UserInfo Auth0UserInfo
+	err = json.Unmarshal(body, &auth0UserInfo)
+	if err != nil {
+		log.Panicln("Error when parsing JSON:", err)
+		return "", err
+	}
+
+	return auth0UserInfo.Email, nil
 }
