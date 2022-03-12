@@ -41,8 +41,9 @@ func GetJwtMiddleware() fiber.Handler {
 // create user by email if it doesn't exists, or get the user from database if user exists
 func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 	var issuer, audience string
+	appEnv := os.Getenv("APP_ENV")
 
-	if os.Getenv("APP_ENV") == "production" {
+	if appEnv == "production" || appEnv == "staging" {
 		issuer = os.Getenv("JWT_ISSUER")
 		audience = os.Getenv("JWT_AUDIENCE")
 	} else {
