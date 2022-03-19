@@ -12,12 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func CreateUser(env *env.Env, email string) (*model.UserModel, error) {
+func CreateUser(env *env.Env, email string, externalUserId string) (*model.UserModel, error) {
 	user := model.UserModel{
-		ID:        primitive.NewObjectID(),
-		Email:     email,
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		ID:             primitive.NewObjectID(),
+		Email:          email,
+		ExternalUserId: externalUserId,
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
 	}
 
 	_, err := env.UserCollection.InsertOne(context.TODO(), user)
@@ -33,6 +34,19 @@ func GetUserByEmail(env *env.Env, email string) (*model.UserModel, error) {
 	var user model.UserModel
 
 	err := env.UserCollection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		log.Print(err)
+
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func GetUserByExternalUserId(env *env.Env, externalUserId string) (*model.UserModel, error) {
+	var user model.UserModel
+
+	err := env.UserCollection.FindOne(context.TODO(), bson.M{"externalUserId": externalUserId}).Decode(&user)
 	if err != nil {
 		log.Print(err)
 

@@ -27,6 +27,7 @@ func TestGetUserAPI(t *testing.T) {
 		})
 
 		g.It("should be able to get user", func() {
+			GivenUser(environment)
 			req := httptest.NewRequest("GET", "/users", nil)
 			req.Header.Set("Content-type", "application/json")
 			req.Header.Set("Authorization", Bearer)
