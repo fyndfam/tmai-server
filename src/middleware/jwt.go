@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/fyndfam/tmai-server/src/env"
-	"github.com/fyndfam/tmai-server/src/model"
 	"github.com/fyndfam/tmai-server/src/service"
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -68,8 +67,20 @@ func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 			return nil
 		}
 
-		var emailAddress string
-		if claims["email"] == nil {
+		externalUserId, ok := claims["sub"].(string)
+		if !ok || len(externalUserId) == 0 {
+			context.Status(401).Send([]byte("Invalid token sub"))
+			return nil
+		}
+
+		user, err := service.GetUserByExternalUserId(env, externalUserId)
+		if err != nil {
+			log.Print(err)
+		}
+
+		if user == nil {
+			var emailAddress string
+
 			email, err := getUserEmailFromAuth0(token.Raw)
 			if err != nil {
 				log.Print(err)
@@ -78,21 +89,11 @@ func GetPostJwtMiddleware(env *env.Env) fiber.Handler {
 			}
 
 			emailAddress = email
-		} else {
-			emailAddress = claims["email"].(string)
-		}
 
-		var user *model.UserModel
-		user, err := service.GetUserByEmail(env, emailAddress)
-		if err != nil {
-			log.Print(err)
-		}
-
-		if user == nil {
-			createdUser, err := service.CreateUser(env, emailAddress)
+			createdUser, err := service.CreateUser(env, emailAddress, externalUserId)
 
 			if err != nil {
-				log.Fatal(err)
+				log.Print(err)
 				return err
 			}
 

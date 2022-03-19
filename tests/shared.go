@@ -68,10 +68,11 @@ func GivenUser(environment *env.Env) {
 	}
 
 	user := model.UserModel{
-		ID:        primitive.NewObjectID(),
-		Email:     email,
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		ID:             primitive.NewObjectID(),
+		ExternalUserId: "1234567890",
+		Email:          email,
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
 	}
 
 	if _, err := environment.UserCollection.InsertOne(context.TODO(), user); err != nil {
@@ -87,11 +88,12 @@ func GivenUserWithUsername(environment *env.Env) {
 	username := "test"
 
 	user := model.UserModel{
-		ID:        primitive.NewObjectID(),
-		Email:     email,
-		Username:  &username,
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		ID:             primitive.NewObjectID(),
+		ExternalUserId: "1234567890",
+		Email:          email,
+		Username:       &username,
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
 	}
 
 	if _, err := environment.UserCollection.InsertOne(context.TODO(), user); err != nil {
