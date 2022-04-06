@@ -32,6 +32,8 @@ environment:
     value: "tmai-staging"
   - name: AUTH0_USER_INFO_URL
     value: "https://tmai-dev.au.auth0.com/userinfo"
+  - name: TAS_URL
+    value: "http://tas/user-avatar"
 
 secretConfig:
   - name: MONGODB_URL
@@ -39,6 +41,11 @@ secretConfig:
       secretKeyRef:
         name: tmai-secret
         key: MONGODB_URL
+  - name: TAS_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: tmai-secret
+        key: TAS_API_KEY
 
 serviceAccount:
   create: false
