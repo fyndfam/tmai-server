@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fyndfam/tmai-server/src/avatar"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -13,6 +14,7 @@ type Env struct {
 	MongoClient    *mongo.Client
 	UserCollection *mongo.Collection
 	PostCollection *mongo.Collection
+	AvatarService  avatar.GenerateUserAvatarer
 }
 
 func getDatabaseName() string {
@@ -25,6 +27,12 @@ func getDatabaseName() string {
 }
 
 func InitializeEnvironment() *Env {
+	tasURL := os.Getenv("TAS_URL")
+	if len(tasURL) == 0 {
+		log.Panic("TAS_URL is not set")
+	}
+	avatarService := avatar.DefaultAvatarService{TasURL: tasURL}
+
 	mongoClientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
 	mongoClient, err := mongo.Connect(context.TODO(), mongoClientOptions)
 
@@ -39,6 +47,7 @@ func InitializeEnvironment() *Env {
 		MongoClient:    mongoClient,
 		UserCollection: mongoClient.Database(databaseName).Collection("users"),
 		PostCollection: mongoClient.Database(databaseName).Collection("posts"),
+		AvatarService:  &avatarService,
 	}
 
 	return &env

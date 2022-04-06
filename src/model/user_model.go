@@ -11,6 +11,7 @@ type UserModel struct {
 	Email          string             `json:"email" bson:"email" binding:"required"`
 	ExternalUserId string             `json:"externalUserId" bson:"externalUserId"`
 	Username       *string            `json:"username,omitempty" bson:"username,omitempty"`
+	Avatar         *string            `json:"avatar,omitempty" bson:"avatar,omitempty"`
 	CreatedAt      time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt      time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
