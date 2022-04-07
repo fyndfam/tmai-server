@@ -17,6 +17,7 @@ type AvatarService struct {
 
 type DefaultAvatarService struct {
 	TasURL string
+	ApiKey string
 }
 
 type GenerateUserAvatarResponse struct {
@@ -26,7 +27,7 @@ type GenerateUserAvatarResponse struct {
 func (svc *DefaultAvatarService) GenerateUserAvatar(userId string) (*string, error) {
 	client := resty.New()
 
-	resp, err := client.R().Get(svc.TasURL)
+	resp, err := client.R().SetHeader("X-API-KEY", svc.ApiKey).Post(svc.TasURL)
 	if err != nil {
 		log.Print(err)
 		return nil, err

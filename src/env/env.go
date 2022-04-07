@@ -26,12 +26,32 @@ func getDatabaseName() string {
 	return databaseName
 }
 
-func InitializeEnvironment() *Env {
+type TasEnvironmentVariable struct {
+	TasURL    string
+	TasApiKey string
+}
+
+func getTasEnvironmentVariables() *TasEnvironmentVariable {
 	tasURL := os.Getenv("TAS_URL")
+	apiKey := os.Getenv("TAS_API_KEY")
+
 	if len(tasURL) == 0 {
 		log.Panic("TAS_URL is not set")
 	}
-	avatarService := avatar.DefaultAvatarService{TasURL: tasURL}
+
+	if len(apiKey) == 0 {
+		log.Panic("TAS_API_KEY is not set")
+	}
+
+	return &TasEnvironmentVariable{
+		TasURL:    tasURL,
+		TasApiKey: apiKey,
+	}
+}
+
+func InitializeEnvironment() *Env {
+	tasEnvVar := getTasEnvironmentVariables()
+	avatarService := avatar.DefaultAvatarService{TasURL: tasEnvVar.TasURL, ApiKey: tasEnvVar.TasApiKey}
 
 	mongoClientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
 	mongoClient, err := mongo.Connect(context.TODO(), mongoClientOptions)
