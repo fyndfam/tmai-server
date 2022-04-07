@@ -13,15 +13,22 @@ import (
 )
 
 func CreateUser(env *env.Env, email string, externalUserId string) (*model.UserModel, error) {
+	userId := primitive.NewObjectID()
+	avatarURL, err := env.AvatarService.GenerateUserAvatar(userId.Hex())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	user := model.UserModel{
-		ID:             primitive.NewObjectID(),
+		ID:             userId,
 		Email:          email,
 		ExternalUserId: externalUserId,
+		Avatar:         avatarURL,
 		CreatedAt:      time.Now().UTC(),
 		UpdatedAt:      time.Now().UTC(),
 	}
 
-	_, err := env.UserCollection.InsertOne(context.TODO(), user)
+	_, err = env.UserCollection.InsertOne(context.TODO(), user)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err

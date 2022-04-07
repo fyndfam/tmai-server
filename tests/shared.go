@@ -2,9 +2,11 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/fyndfam/tmai-server/src/env"
@@ -12,6 +14,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const Bearer string = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNjQzODg5Njc4LCJleHAiOjQxMDI0NDQ4MDAsImF1ZCI6InRtYWlzZXJ2ZXIiLCJpc3MiOiJ0bWFpc2VydmVyIiwiZW1haWwiOiJ0ZXN0QHRtYWkuY28ifQ.P0H878UgorhlE3zT9l9HaAiX4fg0Esd35SZNfKjyJRs"
@@ -52,8 +56,32 @@ func ClearDB(environment *env.Env) {
 	environment.UserCollection.DeleteMany(context.TODO(), bson.M{})
 }
 
+type TestAvatarService struct{}
+
+func (svc *TestAvatarService) GenerateUserAvatar(userId string) (*string, error) {
+	avatarURL := fmt.Sprintf("avatar/avatar_%v.png", userId)
+	return &avatarURL, nil
+}
+
 func SetupTests() *env.Env {
-	return env.InitializeEnvironment()
+	mongoClientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
+	mongoClient, err := mongo.Connect(context.TODO(), mongoClientOptions)
+
+	if err != nil {
+		log.Fatal("Failed to connect to mongodb, panic...")
+		panic(err)
+	}
+
+	databaseName := "tmai"
+
+	env := env.Env{
+		MongoClient:    mongoClient,
+		UserCollection: mongoClient.Database(databaseName).Collection("users"),
+		PostCollection: mongoClient.Database(databaseName).Collection("posts"),
+		AvatarService:  &TestAvatarService{},
+	}
+
+	return &env
 }
 
 func TearDownTests(environment *env.Env) {
@@ -67,9 +95,12 @@ func GivenUser(environment *env.Env) {
 		log.Fatalln("environment is not setup")
 	}
 
+	avatar := "avatar/avatar_1.png"
+
 	user := model.UserModel{
 		ID:             primitive.NewObjectID(),
 		ExternalUserId: "1234567890",
+		Avatar:         &avatar,
 		Email:          email,
 		CreatedAt:      time.Now().UTC(),
 		UpdatedAt:      time.Now().UTC(),
@@ -86,12 +117,14 @@ func GivenUserWithUsername(environment *env.Env) {
 	}
 
 	username := "test"
+	avatar := "avatar/avatar_1.png"
 
 	user := model.UserModel{
 		ID:             primitive.NewObjectID(),
 		ExternalUserId: "1234567890",
 		Email:          email,
 		Username:       &username,
+		Avatar:         &avatar,
 		CreatedAt:      time.Now().UTC(),
 		UpdatedAt:      time.Now().UTC(),
 	}
