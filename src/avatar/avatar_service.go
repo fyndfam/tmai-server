@@ -2,6 +2,7 @@ package avatar
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/go-resty/resty/v2"
@@ -26,8 +27,9 @@ type GenerateUserAvatarResponse struct {
 
 func (svc *DefaultAvatarService) GenerateUserAvatar(userId string) (*string, error) {
 	client := resty.New()
+	generateAvatarURL := fmt.Sprintf("%v/%v", svc.TasURL, userId)
 
-	resp, err := client.R().SetHeader("X-API-KEY", svc.ApiKey).Post(svc.TasURL)
+	resp, err := client.R().SetHeader("X-API-KEY", svc.ApiKey).Post(generateAvatarURL)
 	if err != nil {
 		log.Print(err)
 		return nil, err
