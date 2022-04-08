@@ -49,7 +49,7 @@ func createInsertPostEndpoint(env *env.Env) fiber.Handler {
 			return nil
 		}
 
-		createdPost, err := service.CreatePost(env, *user.Username, content)
+		createdPost, err := service.CreatePost(env, &user, content)
 		if err != nil {
 			ctx.Status(502)
 			return nil

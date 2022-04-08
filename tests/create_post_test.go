@@ -50,7 +50,8 @@ func TestCreatePost(t *testing.T) {
 			}
 
 			assert.Equal(t, "this is a sample post", result.Content)
-			assert.Equal(t, "test", result.CreatedBy)
+			assert.Equal(t, "test", result.CreatedBy.Username)
+			assert.Equal(t, "avatar/avatar_1.png", result.CreatedBy.Avatar)
 		})
 
 		g.It("should return 403 if username is not set", func() {
