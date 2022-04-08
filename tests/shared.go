@@ -146,7 +146,7 @@ func GivenPost(environment *env.Env, postContent string) string {
 		ID:            postID,
 		Content:       postContent,
 		Tags:          tags,
-		CreatedBy:     "test",
+		CreatedBy:     model.CreatedBy{Username: "test", Avatar: "avatar/avatar_1.png"},
 		View:          0,
 		ContentEdited: false,
 		CreatedAt:     time.Now().UTC(),

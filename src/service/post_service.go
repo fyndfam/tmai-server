@@ -50,7 +50,7 @@ func GetLatestPosts(env *env.Env, limit int64, offset int64) ([]*model.PostModel
 	return docs, nil
 }
 
-func CreatePost(env *env.Env, username string, content string) (*model.PostModel, error) {
+func CreatePost(env *env.Env, user *model.UserModel, content string) (*model.PostModel, error) {
 	var tags []string
 
 	post := model.PostModel{
@@ -58,7 +58,7 @@ func CreatePost(env *env.Env, username string, content string) (*model.PostModel
 		Content:       content,
 		Tags:          tags,
 		View:          0,
-		CreatedBy:     username,
+		CreatedBy:     model.CreatedBy{Username: *user.Username, Avatar: *user.Avatar},
 		ContentEdited: false,
 		CreatedAt:     time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
