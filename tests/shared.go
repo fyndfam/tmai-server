@@ -159,3 +159,31 @@ func GivenPost(environment *env.Env, postContent string) string {
 
 	return postID.Hex()
 }
+
+func GivenPosts(environment *env.Env) {
+	if environment == nil {
+		log.Fatalln("environment is not setup")
+	}
+
+	var tags []string
+
+	postContent := [2]string{"hey, this is the first post", "oh, this is interesting, i want it!"}
+	dates := [2]time.Time{time.Date(2022, time.January, 5, 0, 0, 0, 0, time.UTC), time.Date(2022, time.February, 3, 0, 0, 0, 0, time.UTC)}
+
+	for i := 0; i < len(postContent); i++ {
+		post := model.PostModel{
+			ID:            primitive.NewObjectID(),
+			Content:       postContent[i],
+			Tags:          tags,
+			CreatedBy:     model.CreatedBy{Username: "test", Avatar: "avatar/avatar_1.png"},
+			View:          0,
+			ContentEdited: false,
+			CreatedAt:     dates[i],
+			UpdatedAt:     dates[i],
+		}
+
+		if _, err := environment.PostCollection.InsertOne(context.TODO(), post); err != nil {
+			log.Fatalln("Failed to insert test posts data")
+		}
+	}
+}
