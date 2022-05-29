@@ -25,40 +25,27 @@ environment:
   - name: NO_COLOR
     value: "true"
   - name: JWT_ISSUER
-    value: ""
+    value: "https://tmai.au.auth0.com/"
   - name: JWT_AUDIENCE
-    value: ""
+    value: "https://api.tmai.work"
   - name: JWKS_URI
-    value: ""
+    value: "https://tmai.au.auth0.com/.well-known/jwks.json"
   - name: AUTH0_USER_INFO_URL
-    value: ""
+    value: "https://tmai.au.auth0.com/userinfo"
+  - name: TAS_URL
+    value: "http://tas/user-avatar"
 
 secretConfig:
-  # - name: MONGODB_URL
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: MONGODB_URL
-  # - name: AWS_ACCESS_KEY_ID
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: AWS_ACCESS_KEY_ID
-  # - name: AWS_SECRET_ACCESS_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: AWS_SECRET_ACCESS_KEY
-  # - name: FIREBASE_API_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: FIREBASE_API_KEY
-  # - name: SENDGRID_API_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: fyndfam-secret
-  #       key: SENDGRID_API_KEY
+  - name: MONGODB_URL
+    valueFrom:
+      secretKeyRef:
+        name: tmai-secret
+        key: MONGODB_URL
+  - name: TAS_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: tmai-secret
+        key: TAS_API_KEY
 
 serviceAccount:
   create: false
@@ -80,16 +67,16 @@ ingress:
     kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt-production
     traefik.ingress.kubernetes.io/router.tls: "true"
-    acme.cert-manager.io/http01-edit-in-place: "true"
+    acme.cert-manager.io/http01-edit-in-place: "false"
   hosts:
-    - host: api.tmai.xyz
+    - host: api.tmai.work
       paths:
         - path: /
 
   tls:
     - secretName: tmai-server-production-api-tls
       hosts:
-        - api.tmai.xyz
+        - api.tmai.work
 
 resources: {}
 
