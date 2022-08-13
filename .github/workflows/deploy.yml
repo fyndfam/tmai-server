@@ -46,16 +46,33 @@ jobs:
             cckwes/tmai-server:latest
             cckwes/tmai-server:${{fromJson(steps.set_var.outputs.versionJson).version}}
 
-      - name: Deploy helm chart to staging
-        uses: glopezep/helm@v1.7.1
+      - name: Build and push image to GCR Staging
+        uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
         with:
-          release: tmai-server
-          namespace: staging
-          chart: ./deployment/tmai
-          value-files: ./deployment/tmai/staging-values.yaml
-          helm: helm3
-        env:
-          KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
+          gcloud_service_key: ${{ secrets.STAGING_GCLOUD_SA }}
+          registry: gcr.io
+          project_id: fyndfam-staging
+          image_name: tmai-server
+
+      - name: Deploy to Cloud Run Staging
+        uses: google-github-actions/deploy-cloudrun@main
+        with:
+          service: tmai-server
+          image: gcr.io/fyndfam-staging/tmai-server
+          credentials: ${{ secrets.STAGING_GCLOUD_SA }}
+          project_id: fyndfam-staging
+          region: asia-southeast1
+
+      # - name: Deploy helm chart to staging
+      #   uses: glopezep/helm@v1.7.1
+      #   with:
+      #     release: tmai-server
+      #     namespace: staging
+      #     chart: ./deployment/tmai
+      #     value-files: ./deployment/tmai/staging-values.yaml
+      #     helm: helm3
+      #   env:
+      #     KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
 
       - name: Deploy helm chart to production
         uses: glopezep/helm@v1.7.1
