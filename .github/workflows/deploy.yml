@@ -71,6 +71,15 @@ jobs:
           project_id: fyndfam-staging
           region: asia-southeast1
 
+      - name: Deploy to Cloud Run Production
+        uses: google-github-actions/deploy-cloudrun@main
+        with:
+          service: tmai-server
+          image: gcr.io/fyndfam/tmai-server
+          credentials: ${{ secrets.PROD_GCLOUD_SA }}
+          project_id: fyndfam
+          region: asia-southeast1
+
       # - name: Deploy helm chart to staging
       #   uses: glopezep/helm@v1.7.1
       #   with:
