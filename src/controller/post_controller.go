@@ -68,7 +68,7 @@ func createGetLatestPostsEndpoint(env *env.Env) fiber.Handler {
 			return nil
 		}
 
-		latestPosts, err := service.GetLatestPosts(env, 10, int64(offset))
+		latestPosts, err := service.GetLatestPosts(env, 30, int64(offset))
 		if err != nil {
 			ctx.Status(502)
 			return nil
