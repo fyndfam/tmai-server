@@ -73,6 +73,36 @@ func CreatePost(env *env.Env, user *model.UserModel, content string) (*model.Pos
 	return &post, nil
 }
 
+func ReplyPost(env *env.Env, user *model.UserModel, content string, replyPostId string) (*model.PostModel, error) {
+	var tags []string
+
+	replyPostObjectId, err := primitive.ObjectIDFromHex(replyPostId)
+	if err != nil {
+		log.Println("invalid reply post id", err)
+		return nil, err
+	}
+
+	post := model.PostModel{
+		ID:            primitive.NewObjectID(),
+		Content:       content,
+		Tags:          tags,
+		View:          0,
+		CreatedBy:     model.CreatedBy{Username: *user.Username, Avatar: *user.Avatar},
+		ContentEdited: false,
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
+		ReplyTo:       replyPostObjectId,
+	}
+
+	_, err = env.PostCollection.InsertOne(context.TODO(), post)
+	if err != nil {
+		log.Println("error inserting post", err)
+		return nil, err
+	}
+
+	return &post, nil
+}
+
 func IncrementPostView(env *env.Env, postID string) error {
 	objectId, err := primitive.ObjectIDFromHex(postID)
 	if err != nil {

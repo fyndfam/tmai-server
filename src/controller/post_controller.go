@@ -13,7 +13,8 @@ import (
 )
 
 type InsertPostInput struct {
-	Content string `json:"content"`
+	Content     string `json:"content"`
+	ReplyPostId string `json:"ReplyPostId"`
 }
 
 func MountPostRoutes(env *env.Env, app *fiber.App) {
@@ -35,6 +36,8 @@ func createInsertPostEndpoint(env *env.Env) fiber.Handler {
 		}
 
 		var input InsertPostInput
+
+		// TODO: if reply post id exists, check the id validity
 
 		if err := ctx.BodyParser(&input); err != nil {
 			log.Println("Error parsing input", err)
