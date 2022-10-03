@@ -9,6 +9,7 @@ import (
 	"github.com/fyndfam/tmai-server/src/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -23,7 +24,14 @@ func GetPostByID(env *env.Env, postID string) (*model.PostModel, error) {
 
 	var post model.PostModel
 
-	env.PostCollection.FindOne(context.TODO(), filter).Decode(&post)
+	err = env.PostCollection.FindOne(context.TODO(), filter).Decode(&post)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+
+		return nil, err
+	}
 
 	return &post, nil
 }

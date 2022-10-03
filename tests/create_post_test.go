@@ -12,6 +12,7 @@ import (
 	"github.com/fyndfam/tmai-server/src/model"
 	"github.com/fyndfam/tmai-server/src/server"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestCreatePost(t *testing.T) {
@@ -83,6 +84,24 @@ func TestCreatePost(t *testing.T) {
 			assert.Equal(t, postId, result.ReplyTo.Hex())
 			assert.Equal(t, "test", result.CreatedBy.Username)
 			assert.Equal(t, "avatar/avatar_1.png", result.CreatedBy.Avatar)
+		})
+
+		g.It("should return 403 when trying to reply to invalid post", func() {
+			GivenUserWithUsername(environment)
+
+			postId := primitive.NewObjectID().Hex()
+
+			reqBody := fmt.Sprintf(`{"content": "this is reply for the first post", "replyPostId": "%v"}`, postId)
+			req := httptest.NewRequest("POST", "/posts", strings.NewReader(reqBody))
+			req.Header.Set("Content-type", "application/json")
+			req.Header.Set("Authorization", Bearer)
+
+			res, err := app.Test(req)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, 403, res.StatusCode)
 		})
 
 		g.It("should return 403 if username is not set", func() {
