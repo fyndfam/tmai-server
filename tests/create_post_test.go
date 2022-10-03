@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http/httptest"
 	"strings"
@@ -50,6 +51,36 @@ func TestCreatePost(t *testing.T) {
 			}
 
 			assert.Equal(t, "this is a sample post", result.Content)
+			assert.Equal(t, "test", result.CreatedBy.Username)
+			assert.Equal(t, "avatar/avatar_1.png", result.CreatedBy.Avatar)
+		})
+
+		g.It("should be able to reply to post", func() {
+			GivenUserWithUsername(environment)
+
+			postId := GivenPost(environment, "this is the first post")
+
+			reqBody := fmt.Sprintf(`{"content": "this is reply for the first post", "replyPostId": "%v"}`, postId)
+			req := httptest.NewRequest("POST", "/posts", strings.NewReader(reqBody))
+			req.Header.Set("Content-type", "application/json")
+			req.Header.Set("Authorization", Bearer)
+
+			res, err := app.Test(req)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, 200, res.StatusCode)
+
+			body, _ := ioutil.ReadAll(res.Body)
+			var result model.PostModel
+			parseErr := json.Unmarshal(body, &result)
+			if parseErr != nil {
+				t.Error(parseErr)
+			}
+
+			assert.Equal(t, "this is reply for the first post", result.Content)
+			assert.Equal(t, postId, result.ReplyTo.Hex())
 			assert.Equal(t, "test", result.CreatedBy.Username)
 			assert.Equal(t, "avatar/avatar_1.png", result.CreatedBy.Avatar)
 		})
