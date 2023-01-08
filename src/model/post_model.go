@@ -20,4 +20,5 @@ type PostModel struct {
 	ContentEdited bool               `json:"contentEdited" bson:"contentEdited"`
 	CreatedAt     time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt     time.Time          `json:"updatedAt" bson:"updatedAt"`
+	ReplyTo       primitive.ObjectID `json:"replyTo,omitempty" bson:"replyTo,omitempty"`
 }

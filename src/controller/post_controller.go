@@ -13,7 +13,8 @@ import (
 )
 
 type InsertPostInput struct {
-	Content string `json:"content"`
+	Content     string `json:"content"`
+	ReplyPostId string `json:"replyPostId"`
 }
 
 func MountPostRoutes(env *env.Env, app *fiber.App) {
@@ -46,6 +47,24 @@ func createInsertPostEndpoint(env *env.Env) fiber.Handler {
 		if len(content) == 0 {
 			log.Println("Can not create post with empty content")
 			ctx.Status(400).JSON(map[string]string{"message": "Post content must not be empty"})
+			return nil
+		}
+
+		if len(input.ReplyPostId) != 0 {
+			replyingPost, err := service.GetPostByID(env, input.ReplyPostId)
+			if err != nil || replyingPost == nil {
+				log.Println("Invalid reply post id")
+				ctx.Status(403).JSON(map[string]string{"message": "Unable to reply to post"})
+				return nil
+			}
+
+			createdReplyPost, err := service.ReplyPost(env, &user, content, input.ReplyPostId)
+			if err != nil {
+				ctx.Status(502)
+				return nil
+			}
+
+			ctx.Status(200).JSON(createdReplyPost)
 			return nil
 		}
 

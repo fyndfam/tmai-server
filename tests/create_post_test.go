@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http/httptest"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/fyndfam/tmai-server/src/model"
 	"github.com/fyndfam/tmai-server/src/server"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestCreatePost(t *testing.T) {
@@ -52,6 +54,54 @@ func TestCreatePost(t *testing.T) {
 			assert.Equal(t, "this is a sample post", result.Content)
 			assert.Equal(t, "test", result.CreatedBy.Username)
 			assert.Equal(t, "avatar/avatar_1.png", result.CreatedBy.Avatar)
+		})
+
+		g.It("should be able to reply to post", func() {
+			GivenUserWithUsername(environment)
+
+			postId := GivenPost(environment, "this is the first post")
+
+			reqBody := fmt.Sprintf(`{"content": "this is reply for the first post", "replyPostId": "%v"}`, postId)
+			req := httptest.NewRequest("POST", "/posts", strings.NewReader(reqBody))
+			req.Header.Set("Content-type", "application/json")
+			req.Header.Set("Authorization", Bearer)
+
+			res, err := app.Test(req)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, 200, res.StatusCode)
+
+			body, _ := ioutil.ReadAll(res.Body)
+			var result model.PostModel
+			parseErr := json.Unmarshal(body, &result)
+			if parseErr != nil {
+				t.Error(parseErr)
+			}
+
+			assert.Equal(t, "this is reply for the first post", result.Content)
+			assert.Equal(t, postId, result.ReplyTo.Hex())
+			assert.Equal(t, "test", result.CreatedBy.Username)
+			assert.Equal(t, "avatar/avatar_1.png", result.CreatedBy.Avatar)
+		})
+
+		g.It("should return 403 when trying to reply to invalid post", func() {
+			GivenUserWithUsername(environment)
+
+			postId := primitive.NewObjectID().Hex()
+
+			reqBody := fmt.Sprintf(`{"content": "this is reply for the first post", "replyPostId": "%v"}`, postId)
+			req := httptest.NewRequest("POST", "/posts", strings.NewReader(reqBody))
+			req.Header.Set("Content-type", "application/json")
+			req.Header.Set("Authorization", Bearer)
+
+			res, err := app.Test(req)
+			if err != nil {
+				t.Error(err)
+			}
+
+			assert.Equal(t, 403, res.StatusCode)
 		})
 
 		g.It("should return 403 if username is not set", func() {

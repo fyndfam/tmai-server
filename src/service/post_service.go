@@ -9,6 +9,7 @@ import (
 	"github.com/fyndfam/tmai-server/src/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -23,7 +24,14 @@ func GetPostByID(env *env.Env, postID string) (*model.PostModel, error) {
 
 	var post model.PostModel
 
-	env.PostCollection.FindOne(context.TODO(), filter).Decode(&post)
+	err = env.PostCollection.FindOne(context.TODO(), filter).Decode(&post)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+
+		return nil, err
+	}
 
 	return &post, nil
 }
@@ -65,6 +73,36 @@ func CreatePost(env *env.Env, user *model.UserModel, content string) (*model.Pos
 	}
 
 	_, err := env.PostCollection.InsertOne(context.TODO(), post)
+	if err != nil {
+		log.Println("error inserting post", err)
+		return nil, err
+	}
+
+	return &post, nil
+}
+
+func ReplyPost(env *env.Env, user *model.UserModel, content string, replyPostId string) (*model.PostModel, error) {
+	var tags []string
+
+	replyPostObjectId, err := primitive.ObjectIDFromHex(replyPostId)
+	if err != nil {
+		log.Println("invalid reply post id", err)
+		return nil, err
+	}
+
+	post := model.PostModel{
+		ID:            primitive.NewObjectID(),
+		Content:       content,
+		Tags:          tags,
+		View:          0,
+		CreatedBy:     model.CreatedBy{Username: *user.Username, Avatar: *user.Avatar},
+		ContentEdited: false,
+		CreatedAt:     time.Now().UTC(),
+		UpdatedAt:     time.Now().UTC(),
+		ReplyTo:       replyPostObjectId,
+	}
+
+	_, err = env.PostCollection.InsertOne(context.TODO(), post)
 	if err != nil {
 		log.Println("error inserting post", err)
 		return nil, err

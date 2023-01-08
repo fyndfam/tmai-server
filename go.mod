@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/franela/goblin v0.0.0-20211003143422-0a4f594942bf
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gofiber/fiber/v2 v2.26.0
 	github.com/gofiber/jwt/v3 v3.2.3
 	github.com/golang-jwt/jwt/v4 v4.2.0
@@ -14,7 +15,6 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/klauspost/compress v1.14.2 // indirect
