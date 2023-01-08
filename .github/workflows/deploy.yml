@@ -63,7 +63,7 @@ jobs:
           image_name: tmai-server
 
       - name: Deploy to Cloud Run Staging
-        uses: google-github-actions/deploy-cloudrun@main
+        uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: tmai-server
           image: gcr.io/fyndfam-staging/tmai-server
@@ -72,7 +72,7 @@ jobs:
           region: asia-southeast1
 
       - name: Deploy to Cloud Run Production
-        uses: google-github-actions/deploy-cloudrun@main
+        uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: tmai-server
           image: gcr.io/fyndfam/tmai-server
