@@ -1,0 +1,35 @@
+name: deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Build and push image to GCR Production
+        uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
+        with:
+          gcloud_service_key: ${{ secrets.PROD_GCLOUD_SA }}
+          registry: gcr.io
+          project_id: fyndfam
+          image_name: tmai-server
+
+      - name: 'Auth for GCP'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: ${{ secrets.PROD_GCLOUD_SA }}
+
+      - name: Deploy to Cloud Run Production
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: tmai-server
+          image: gcr.io/fyndfam/tmai-server
+          project_id: fyndfam
+          region: asia-southeast1
+
